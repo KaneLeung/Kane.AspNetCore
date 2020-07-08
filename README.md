@@ -2,7 +2,7 @@
 
 > 常用的 Asp.NetCore 扩展方法和帮助类
 
-![dotnet-version](https://img.shields.io/badge/.net-%3E%3D4.0-blue.svg?style=flat-square&cacheSeconds=604800)
+![dotnet-version](https://img.shields.io/badge/netcore-%3E%3D2.1-blue.svg?style=flat-square&cacheSeconds=604800)
 ![csharp-version](https://img.shields.io/badge/C%23-8.0-gr.svg?style=flat-square&cacheSeconds=604800)
 ![IDE-version](https://img.shields.io/badge/IDE-vs2019-blue.svg?style=flat-square&cacheSeconds=604800)
 [![nuget-version](https://img.shields.io/nuget/v/Kane.AspNetCore.svg?style=flat-square&cacheSeconds=604800)](https://www.nuget.org/packages/Kane.AspNetCore)

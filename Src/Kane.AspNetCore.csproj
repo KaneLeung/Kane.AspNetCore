@@ -3,16 +3,16 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
-    <!--<SignAssembly>true</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Kane.AspNetCore.snk</AssemblyOriginatorKeyFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kane Leung</Authors>
     <Company />
     <Product />
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Copyright>MIT License</Copyright>
     <PackageProjectUrl>https://github.com/KaneLeung/Kane.AspNetCore</PackageProjectUrl>
-    <RepositoryUrl>git@github.com:KaneLeung/Kane.AspNetCore.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/KaneLeung/Kane.AspNetCore</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Description>AspNetCore常用的扩展，具体请看源码</Description>

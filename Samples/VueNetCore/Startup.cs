@@ -1,4 +1,4 @@
-using Kane.AspNetCore;
+锘縰sing Kane.AspNetCore;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +21,7 @@ namespace VueNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSpaStaticFiles(configuration => //生产环境路径
+            services.AddSpaStaticFiles(configuration => //鐢熶骇鐜璺緞
             {
                 configuration.RootPath = "ClientApp/dist";
             });

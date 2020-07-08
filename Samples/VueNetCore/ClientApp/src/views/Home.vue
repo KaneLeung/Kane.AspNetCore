@@ -6,13 +6,16 @@
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+    console.log('process',process)
+    console.log('process.env',process.env)
+    console.log('process.env.NODE_ENV',process.env.NODE_ENV)
+    // @ is an alias to /src
+    import HelloWorld from '@/components/HelloWorld.vue'
 
-export default {
-  name: "Home",
-  components: {
-    HelloWorld
-  }
-};
+    export default {
+        name: 'Home',
+        components: {
+            HelloWorld
+        }
+    }
 </script>

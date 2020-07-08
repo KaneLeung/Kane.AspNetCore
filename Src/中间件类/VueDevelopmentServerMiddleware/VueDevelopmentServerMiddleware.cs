@@ -1,7 +1,7 @@
 ﻿#region << 版 本 注 释 >>
 /*-----------------------------------------------------------------
 * 项目名称 ：Kane.AspNetCore
-* 项目描述 ：Asp.NetCore通用扩展方法
+* 项目描述 ：Asp.NetCore通用扩展类库
 * 类 名 称 ：VueDevelopmentServerMiddleware
 * 类 描 述 ：Vue开发环境中间件
 * 所在的域 ：KK-HOME
@@ -45,14 +45,15 @@ namespace Kane.AspNetCore
         /// </summary>
         /// <param name="spaBuilder">当前Spa创建器</param>
         /// <param name="script">运行的脚本命令</param>
-        /// <param name="port">默认端口【8080】，如果端口被占用，则自动获取一个新的端口</param>
+        /// <param name="port">默认端口【8080】，如果端口被占用并且【forceKill】为false，则自动获取一个新的端口</param>
+        /// <param name="forceKill">是否强制结束该端口进程</param>
         /// <param name="pkgManagerCommand">使用包管理器命令，默认为【npm】</param>
-        public static void UseVueDevelopmentServer(this ISpaBuilder spaBuilder, string script, int port = 8080, string pkgManagerCommand = "npm")
+        public static void UseVueDevelopmentServer(this ISpaBuilder spaBuilder, string script, int port = 8080, bool forceKill = true, string pkgManagerCommand = "npm")
         {
             if (spaBuilder == null) throw new ArgumentNullException("spaBuilder", "参数不能为空。");
             if (string.IsNullOrEmpty(spaBuilder.Options.SourcePath))
                 throw new InvalidOperationException($"调用{nameof(UseVueDevelopmentServer)},必须为【UseSpa】提供SpaOptions的SourcePath值");
-            Attach(spaBuilder, script, port, pkgManagerCommand);
+            Attach(spaBuilder, script, port, forceKill, pkgManagerCommand);
         }
         #endregion
 
@@ -62,18 +63,18 @@ namespace Kane.AspNetCore
         /// </summary>
         /// <param name="spaBuilder">当前Spa创建器</param>
         /// <param name="script">运行的脚本命令</param>
-        /// <param name="port">端口，如果端口被占用，则自动获取一个新的端口</param>
+        /// <param name="port">端口，如果端口被占用并且【forceKill】为false，则自动获取一个新的端口</param>
+        /// <param name="forceKill">是否强制结束该端口进程</param>
         /// <param name="pkgManagerCommand">使用包管理器命令</param>
-        private static void Attach(ISpaBuilder spaBuilder, string script, int port, string pkgManagerCommand)
+        private static void Attach(ISpaBuilder spaBuilder, string script, int port, bool forceKill, string pkgManagerCommand)
         {
             string sourcePath = spaBuilder.Options.SourcePath;
             if (string.IsNullOrEmpty(sourcePath)) throw new ArgumentNullException(nameof(sourcePath), $"参数不能为空。");
             if (string.IsNullOrEmpty(script)) throw new ArgumentNullException(nameof(script), $"参数不能为空。");
 
-
             var appBuilder = spaBuilder.ApplicationBuilder;
             var logger = InternalCommon.GetOrCreateLogger(appBuilder, nameof(VueDevelopmentServerMiddleware));
-            var portTask = CreateVueAppServerAsync(sourcePath, script, port, pkgManagerCommand, logger);//创建Vue服务
+            var portTask = CreateVueAppServerAsync(sourcePath, script, port, forceKill, pkgManagerCommand, logger);//创建Vue服务
 
             // Everything we proxy is hardcoded to target http://localhost because:
             // - the requests are always from the local machine (we're not accepting remote
@@ -98,21 +99,22 @@ namespace Kane.AspNetCore
         /// <param name="sourcePath">源代码路径</param>
         /// <param name="script">运行的脚本命令</param>
         /// <param name="port">端口</param>
+        /// <param name="forceKill">是否强制结束该端口进程</param>
         /// <param name="pkgManagerCommand">使用包管理器命令</param>
         /// <param name="logger">日志入口</param>
         /// <returns></returns>
-        private static async Task<int> CreateVueAppServerAsync(string sourcePath, string script, int port, string pkgManagerCommand, ILogger logger)
+        private static async Task<int> CreateVueAppServerAsync(string sourcePath, string script, int port, bool forceKill, string pkgManagerCommand, ILogger logger)
         {
-            int portNumber = InternalCommon.CheckAndGetAvailablePort(port);
+            int portNumber = InternalCommon.CheckAndGetAvailablePort(port, forceKill);
             if (portNumber != port) logger.LogInformation($"原端口【{port}】已被占有，重新获取新端口【{portNumber}】。");
             logger.LogInformation($"在端口【{portNumber}】上运行Vue server。");
             var envVars = new Dictionary<string, string>
             {
-                { "PORT", port.ToString() },
-                { "DEV_SERVER_PORT", port.ToString() },
+                { "PORT", portNumber.ToString() },
+                { "DEV_SERVER_PORT", portNumber.ToString() },
                 { "BROWSER", "none" }
             };
-            var runner = new NodeScriptRunner(sourcePath, script, $"--port {port:0}", envVars, pkgManagerCommand);
+            var runner = new NodeScriptRunner(sourcePath, script, $"--port {portNumber:0}", envVars, pkgManagerCommand);
             runner.AttachToLogger(logger);
             using (var reader = new EventedStreamStringReader(runner.StdErr))
             {

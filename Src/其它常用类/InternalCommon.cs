@@ -22,6 +22,8 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
+using Kane.Extension;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -49,13 +51,19 @@ namespace Kane.AspNetCore
         /// <summary>
         /// 判断端口是否占用，若占用，则返回一个空闲的端口，否则返回原来的端口
         /// </summary>
-        /// <param name="port"></param>
+        /// <param name="port">端口</param>
+        /// <param name="foreKill">是否强制终止</param>
         /// <returns></returns>
-        public static int CheckAndGetAvailablePort(int port)
+        public static int CheckAndGetAvailablePort(int port, bool foreKill)
         {
             var ipEndPoints = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
             if (ipEndPoints.Any(k => k.Port == port)) //已经占有，则获取一个空闲的端口
             {
+                if (foreKill)
+                {
+                    var helper = new ProcessHelper();
+                    if (helper.KillProcess(helper.GetPortPid(port), true) == true) return port;
+                }
                 var listener = new TcpListener(IPAddress.Loopback, 0);
                 listener.Start();
                 try
