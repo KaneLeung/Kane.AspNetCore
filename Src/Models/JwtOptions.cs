@@ -18,6 +18,16 @@
 -----------------------------------------------------------------*/
 #endregion
 
+using Microsoft.IdentityModel.Tokens;
+
+using Kane.Extension;
+
+#if NETCOREAPP3_1
+using System.Text.Json.Serialization;
+#else
+using Newtonsoft.Json;
+#endif
+
 namespace Kane.AspNetCore
 {
     /// <summary>
@@ -40,10 +50,28 @@ namespace Kane.AspNetCore
         /// <summary>
         /// AccessToken有效期分钟数
         /// </summary>
-        public int Expire { get; set; } = 10;
+        public int Expires { get; set; } = 10;
         /// <summary>
         /// RefreshToken有效期分钟数
         /// </summary>
-        public int Refresh { get; set; } = 10;
+        public int Refresh { get; set; } = 12;
+        /// <summary>
+        /// Jwt密钥
+        /// </summary>
+        [JsonIgnore]
+        internal SecurityKey Key
+        {
+            get
+            {
+                Secret.ThrowIfNull(nameof(Secret));
+                var temp = Secret.ToBytes();
+                if (temp.Length <= 16)//Jwt密钥不足16位会报错
+                {
+                    var hash = new HashHelper();
+                    temp = hash.Md5Bytes(Secret);
+                }
+                return new SymmetricSecurityKey(temp);
+            }
+        }
     }
 }

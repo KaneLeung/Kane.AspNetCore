@@ -20,6 +20,7 @@ namespace VueNetCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddJwtAuthentication();//加入Jwt服务
             services.AddControllers();
             services.AddSpaStaticFiles(configuration => //生产环境路径
             {
@@ -38,6 +39,7 @@ namespace VueNetCore
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
             app.UseRouting();
+            app.UseAuthentication();//加入Jwt认证
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
