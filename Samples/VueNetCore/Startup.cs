@@ -1,7 +1,11 @@
-﻿using Kane.AspNetCore;
+﻿using System.Net;
+using System.Threading.Tasks;
+using Kane.AspNetCore;
+using Kane.Extension.Json;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,6 +43,19 @@ namespace VueNetCore
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
             app.UseRouting();
+            app.UseStatusCodePages(async context => //重写401的状态码
+            {
+                var response = context.HttpContext.Response;
+                var message = $"{response.StatusCode} {(HttpStatusCode)response.StatusCode}";
+                if (response.StatusCode == 401) 
+                {
+                    response.ContentType = "application/json";
+                    var statusCode = response.StatusCode;
+                    response.StatusCode = 200;
+                    await response.WriteAsync(new { code = statusCode, message }.ToJson());
+                }
+                await Task.CompletedTask;
+            });
             app.UseAuthentication();//加入Jwt认证
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
