@@ -10,10 +10,10 @@ let requestList = []; // 重试队列，每一项将是一个待执行的函数�
 const http = axios.create(); //创建Axios实例 
 http.defaults.timeout = 10000; //设置超时，单位毫秒
 http.defaults.baseURL = host; // 默认地址
-//http.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';//全局设置，默认为【application/json;charset=UTF-8】
-http.setToken = (token) => {
-  http.defaults.headers.Authorization = token;
-}
+//http.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';//全局设置，默认为【application/x-www-form-urlencoded】
+//http.setToken = (token) => {
+//  http.defaults.headers.Authorization = token;
+//}
 http.defaults.transformRequest = data => { //整理数据
   //data = Qs.stringify(data);
   data = JSON.stringify(data);
@@ -22,7 +22,7 @@ http.defaults.transformRequest = data => { //整理数据
 //请求拦截器配置
 const httpConf = (config) => {
   //config.headers["Content-Type"] = "application/json;charset=UTF-8";
-  let tokenInfo = Storage.localGet("tokenInfo")
+  const tokenInfo = Storage.localGet("tokenInfo")
   if (tokenInfo && tokenInfo.Access_Token) {
     config.headers["Authorization"] = `Bearer ${tokenInfo.Access_Token}`;
   }
@@ -37,7 +37,7 @@ http.interceptors.request.use(httpConf, error => {
 http.interceptors.response.use(async (response) => {
   let data = {};
   if (response && response.data) {
-    let code = Number(response.data.code);
+    const code = Number(response.data.code);
     data = response.data;
     if (response.status == 200 && code != 401) {
       data = response.data;
@@ -45,11 +45,9 @@ http.interceptors.response.use(async (response) => {
       if (!refreshFlag) {
         refreshFlag = true;
         try {
-          let token = await refreshToken();
+          const token = await refreshToken();
           if (token) {
-            http.setToken(token);
-            response.config.headers.Authorization = token;
-            requestList.forEach(item => item(token)); // 已经刷新了token，将所有队列中的请求进行重试
+            requestList.forEach(item => item()); // 已经刷新了token，将所有队列中的请求进行重试
             requestList = [];
             return http(httpConf(response.config));
           } else {
@@ -67,8 +65,7 @@ http.interceptors.response.use(async (response) => {
         }
       } else {
         return new Promise((resolve) => { // 正在刷新token，将返回一个未执行resolve的promise
-          requestList.push((token) => { // 将resolve放进队列，用一个函数形式来保存，等token刷新后直接执行
-            response.config.headers.Authorization = token;
+          requestList.push(() => { // 将resolve放进队列，用一个函数形式来保存，等token刷新后直接执行
             resolve(http(httpConf(response.config)));
           });
         });
@@ -88,7 +85,7 @@ http.interceptors.response.use(async (response) => {
 });
 const refreshToken = async () => { //根据RefreshToken获取新的Jwt
   try {
-    let tokenInfo = Storage.localGet("tokenInfo")
+    const tokenInfo = Storage.localGet("tokenInfo")
     if (tokenInfo && tokenInfo.Refresh_Token) { //没有Token信息，直接返回null
       const {
         data
