@@ -32,5 +32,14 @@ namespace Kane.AspNetCore
         /// <param name="builder">管道</param>
         /// <returns></returns>
         public static IApplicationBuilder UseSpa(this IApplicationBuilder builder) => builder.UseMiddleware<SpaMiddleware>();
+
+#if NETCOREAPP3_1
+        /// <summary>
+        /// 添加<see cref="ApiLoggerMiddleware"/>到管道中
+        /// </summary>
+        /// <param name="builder">管道</param>
+        /// <returns></returns>
+        public static IApplicationBuilder UseApiLogger(this IApplicationBuilder builder) => builder.UseMiddleware<ApiLoggerMiddleware>();
+#endif
     }
 }
