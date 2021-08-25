@@ -28,7 +28,7 @@
     <!--<PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />-->
     <PackageReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
     <!--<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.4" />-->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.0" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.5" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
   </ItemGroup>
 
